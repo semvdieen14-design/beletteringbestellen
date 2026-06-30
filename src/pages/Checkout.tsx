@@ -61,7 +61,9 @@ export default function Checkout() {
   };
 
   const saveOrderToDatabase = async (orderNumber: string) => {
+    const orderId = crypto.randomUUID();
     const orderData = {
+      id: orderId,
       user_id: user?.id || null,
       product_name: items.map(i => i.text).join(', '),
       width_cm: items[0]?.dimensions?.widthCm || 0,
@@ -98,18 +100,18 @@ export default function Checkout() {
       },
     };
 
-    const { data, error } = await supabase
+    // Geen .select() na insert: anon heeft (terecht) geen leesrecht op orders.
+    // We genereren de id zelf, dus teruglezen is niet nodig.
+    const { error } = await supabase
       .from('orders')
-      .insert(orderData)
-      .select('id')
-      .single();
+      .insert(orderData);
 
     if (error) {
       console.error('Error creating order:', error);
       throw error;
     }
 
-    return data.id;
+    return orderId;
   };
 
   const handlePayment = async () => {
