@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
-const ADMIN_PASSWORD = 'belettering2024';
 
 interface Order {
   id: string;
@@ -28,29 +26,20 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setLoggedIn(true);
-    } else {
-      setPasswordError('Verkeerd wachtwoord');
-    }
-  };
-
-  useEffect(() => {
-    if (!loggedIn) return;
     setLoadingOrders(true);
-    supabase
-      .from('orders')
-      .select('id, created_at, status, design_data')
-      .not('design_data', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        if (data) setOrders(data as Order[]);
-        setLoadingOrders(false);
-      });
-  }, [loggedIn]);
+    const { data, error } = await supabase.functions.invoke('admin-orders', {
+      body: { password, action: 'list' },
+    });
+    setLoadingOrders(false);
+    if (error || !data?.orders) {
+      setPasswordError('Verkeerd wachtwoord');
+      return;
+    }
+    setOrders(data.orders as Order[]);
+    setLoggedIn(true);
+  };
 
   const handleSend = async () => {
     if (!selected) return;
@@ -67,11 +56,11 @@ export default function Admin() {
       });
       if (error) throw error;
 
-      // Status bijwerken naar 'verzonden' in database
-      await supabase
-        .from('orders')
-        .update({ status: 'verzonden' })
-        .eq('id', selected.id);
+      // Status bijwerken naar 'verzonden' via admin-orders (service_role, server-side)
+      const { error: updateError } = await supabase.functions.invoke('admin-orders', {
+        body: { password, action: 'mark-shipped', orderId: selected.id },
+      });
+      if (updateError) throw updateError;
 
       // Lijst bijwerken
       setOrders(prev => prev.map(o => o.id === selected.id ? { ...o, status: 'verzonden' } : o));

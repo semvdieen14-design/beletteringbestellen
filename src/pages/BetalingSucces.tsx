@@ -1,4 +1,10 @@
 import { useEffect, useState } from "react";
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 import { CheckCircle, Package, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -52,11 +58,9 @@ const BetalingSucces = () => {
     const checkStatus = async () => {
       attempts++;
 
-      const { data } = await supabase
-        .from('orders')
-        .select('status')
-        .eq('id', pendingOrder.orderId)
-        .single();
+      const { data } = await supabase.functions.invoke('order-status', {
+        body: { orderId: pendingOrder.orderId },
+      });
 
       const status = data?.status;
 
@@ -64,6 +68,7 @@ const BetalingSucces = () => {
         localStorage.removeItem('pendingOrder');
         setVerifying(false);
         sendConfirmationEmail(pendingOrder);
+        trackPurchase(pendingOrder);
       } else if (status === 'payment_failed' || status === 'cancelled') {
         localStorage.removeItem('pendingOrder');
         navigate('/betaling-mislukt');
@@ -79,6 +84,24 @@ const BetalingSucces = () => {
 
     checkStatus();
   }, []);
+
+  const trackPurchase = (order: PendingOrder) => {
+    if (typeof window.gtag !== 'function') return;
+    if (localStorage.getItem('cookies-accepted') === 'functional') return;
+    window.gtag('event', 'purchase', {
+      transaction_id: order.orderNumber,
+      value: order.total,
+      shipping: order.shipping,
+      currency: 'EUR',
+      items: order.items.map((item, index) => ({
+        item_id: `item_${index}`,
+        item_name: item.text || 'Plakletters',
+        item_category: 'Belettering',
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    });
+  };
 
   const sendConfirmationEmail = async (order: PendingOrder) => {
     try {
