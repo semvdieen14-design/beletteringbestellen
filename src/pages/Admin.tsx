@@ -43,6 +43,7 @@ export default function Admin() {
     supabase
       .from('orders')
       .select('id, created_at, status, design_data')
+      .not('design_data', 'is', null)
       .order('created_at', { ascending: false })
       .limit(20)
       .then(({ data }) => {
@@ -199,6 +200,7 @@ export default function Admin() {
           )}
           {orders.map(order => {
             const dd = order.design_data;
+            if (!dd) return null;
             const date = new Date(order.created_at).toLocaleDateString('nl-NL', {
               day: 'numeric', month: 'short', year: 'numeric'
             });
