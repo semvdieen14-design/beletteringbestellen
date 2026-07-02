@@ -1,4 +1,4 @@
-import { Mail, Phone, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MessageCircle, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CookieBanner } from './CookieBanner';
 
@@ -77,6 +77,12 @@ export function Footer() {
                 <MessageCircle className="w-4 h-4" />
                 <a href="https://wa.me/31614145350" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
                   WhatsApp
+                </a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Facebook className="w-4 h-4" />
+                <a href="https://www.facebook.com/share/1aZKpr45on/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
+                  Facebook
                 </a>
               </div>
             </div>
