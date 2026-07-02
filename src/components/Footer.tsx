@@ -94,6 +94,17 @@ export function Footer() {
             <Link to="/privacybeleid" className="hover:text-background/70 transition">Privacybeleid</Link>
           </div>
         </div>
+        <div className="mt-6 text-center text-xs text-background/40 font-medium">
+          Gemaakt door{' '}
+          <a
+            href="https://www.instagram.com/svd_web?utm_source=qr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition"
+          >
+            SVD Web
+          </a>
+        </div>
         <CookieBanner />
       </div>
     </footer>
