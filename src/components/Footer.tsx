@@ -9,13 +9,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-16">
           {/* Logo & About */}
           <div className="col-span-1 md:col-span-2 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary p-2 rounded-xl">
-                <span className="font-black text-xl italic tracking-tighter text-primary-foreground">BB</span>
-              </div>
-              <span className="text-2xl font-black tracking-tight">
-                Belettering<span className="text-primary">Bestellen</span>
-              </span>
+            <div className="flex items-center">
+              <img
+                src="/assets/logo-beletteringbestellen.png"
+                alt="Belettering Bestellen"
+                className="h-24 w-auto"
+              />
             </div>
             <p className="text-background/60 max-w-sm leading-relaxed text-lg font-medium">
               Wij maken design toegankelijk voor iedereen. Hoogwaardige belettering, voor een fractie van de prijs.
